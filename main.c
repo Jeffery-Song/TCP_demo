@@ -11,14 +11,15 @@
 #include <sys/time.h>
 #include <arpa/inet.h>
 #include "sock.h"
-char *msg = "hello world\n";
+char *msgs = "hello client, I'm server\n";
+char *msgc = "hello server, I'm client\n";
 
 int main(int argc, char *argv[]){
 
 	int sock;
 	uint32_t port = 18515;
 	char *server_name = NULL;
-	char tmp[15] = "";
+	char tmp[30] = "";
 
 	while (1) {
 		int c;
@@ -58,8 +59,12 @@ int main(int argc, char *argv[]){
 		fprintf(stderr, "Couldn't built TCP connection to server %s, port %d\n", server_name, port);
 		return 1;
 	}
-	
-	int sync_rst = sock_sync_data(sock, !server_name, strlen(msg)*sizeof(char), msg, tmp);
+
+	int sync_rst;
+	if(server_name)
+		sync_rst = sock_sync_data(sock, !server_name, strlen(msgc)*sizeof(char), msgc, tmp);
+	else
+		sync_rst = sock_sync_data(sock, !server_name, strlen(msgs)*sizeof(char), msgs, tmp); 
 	if (sync_rst < 0) {
 		fprintf(stderr, "Couldn't exchange message\n");
 		return 1;
